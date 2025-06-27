@@ -48,7 +48,21 @@ async def start(client, message):
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /start**")
         await checkdb.add_user(message.from_user.id, message.from_user.first_name)
-        return await message.reply("<b>Congratulations 🎉\n\nYour Account Created Successfully.\n\nFor Uploading File In Quality Option Use Command /quality\n\nMore Commands Are /account and /update and /withdraw\n\nFor Without Quality Option Direct Send File To Bot.</b>")
+        return await message.reply("<b>🎉✨ BOOM! Account Created Successfully! 🎉✨
+🔐 Your files are now just a link away...
+━━━━━━━━━━━━━━━
+📂 Want Quality Options While Uploading?
+Use 🔧 /quality command before sending files.
+📤 No quality needed?
+Just send your file directly to this bot!
+━━━━━━━━━━━━━━━
+🛠️ Useful Commands:
+🔹 /account – View account details
+🔹 /update – Update your profile
+🔹 /withdraw – Withdraw earnings 💰
+━━━━━━━━━━━━━━━
+🧑‍💻 Need help? This bot is here for you 24×7!
+🚀 Start Sharing Smarter with Ak Disk!</b>")
     else:
         rm = InlineKeyboardMarkup([[InlineKeyboardButton("✨ Update Channel", url="https://t.me/Movieupdatewithak01")]])
         await client.send_message(
