@@ -18,9 +18,9 @@ async def encode(string):
     return base64_string
 
 async def decode(base64_string):
-    base64_string = base64_string.strip("=") # links generated before this commit will be having = sign, hence striping them to handle padding errors.
+    base64_string = base64_string.strip("=")
     base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
-    string_bytes = base64.urlsafe_b64decode(base64_bytes) 
+    string_bytes = base64.urlsafe_b64decode(base64_bytes)
     string = string_bytes.decode("ascii")
     return string
 
@@ -28,27 +28,28 @@ async def decode(base64_string):
 async def start(client, message):
     if not await checkdb.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
-        name = await client.ask(message.chat.id, "<b>🎬✨ Welcome to Ak Disk – Your Personal File Hosting Partner! ✨🎬
+        name = await client.ask(message.chat.id, """<b>🎬✨ Welcome to Ak Disk – Your Personal File Hosting Partner! ✨🎬</b>
 🌐 Hosting 🔗 | Sharing 📤 | Earning 💸
 ⏳ Let’s get your account ready...
 ━━━━━━━━━━━━━━━
 🧾 Step 1: Business Name
 💡 Send the name you want to show on your website.
-➡️ Example:\nEx :- <code>Mr Ak</code></b>")
+➡️ Example:
+Ex :- <code>Mr Ak</code></b>""")
         if name.text:
             await db.set_name(message.from_user.id, name=name.text)
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /start**")
-        link = await client.ask(message.chat.id, "<b>📢 Step 2: Telegram Channel Link
+        link = await client.ask(message.chat.id, """<b>📢 Step 2: Telegram Channel Link
 📌 This link will appear on your site.
 ✅ Correct: https://t.me/Movieupdatewithak01
-❌ Wrong: @Movieupdatewithak01</b>")
+❌ Wrong: @Movieupdatewithak01</b>""")
         if link.text and link.text.startswith(('http://', 'https://')):
             await db.set_link(message.from_user.id, link=link.text)
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /start**")
         await checkdb.add_user(message.from_user.id, message.from_user.first_name)
-        return await message.reply("<b>🎉✨ BOOM! Account Created Successfully! 🎉✨
+        return await message.reply("""<b>🎉✨ BOOM! Account Created Successfully! 🎉✨</b>
 🔐 Your files are now just a link away...
 ━━━━━━━━━━━━━━━
 📂 Want Quality Options While Uploading?
@@ -62,7 +63,7 @@ Just send your file directly to this bot!
 🔹 /withdraw – Withdraw earnings 💰
 ━━━━━━━━━━━━━━━
 🧑‍💻 Need help? This bot is here for you 24×7!
-🚀 Start Sharing Smarter with Ak Disk!</b>")
+🚀 Start Sharing Smarter with Ak Disk!</b>""")
     else:
         rm = InlineKeyboardMarkup([[InlineKeyboardButton("✨ Update Channel", url="https://t.me/Movieupdatewithak01")]])
         await client.send_message(
@@ -72,6 +73,7 @@ Just send your file directly to this bot!
             parse_mode=enums.ParseMode.HTML
         )
         return
+
 
 @Client.on_message(filters.command("update") & filters.private)
 async def update(client, message):
