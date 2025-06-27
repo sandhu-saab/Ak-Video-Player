@@ -39,7 +39,10 @@ async def start(client, message):
             await db.set_name(message.from_user.id, name=name.text)
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /start**")
-        link = await client.ask(message.chat.id, "<b>Now Send Me Your Telegram Channel Link, Channel Link Will Show On Your Website.\n\nSend Like This <code>https://t.me/Movieupdatewithak01</code> ✅\n\nDo not send like this @Movieupdatewithak01 ❌</b>")
+        link = await client.ask(message.chat.id, "<b>📢 Step 2: Telegram Channel Link
+📌 This link will appear on your site.
+✅ Correct: https://t.me/Movieupdatewithak01
+❌ Wrong: @Movieupdatewithak01</b>")
         if link.text and link.text.startswith(('http://', 'https://')):
             await db.set_link(message.from_user.id, link=link.text)
         else:
