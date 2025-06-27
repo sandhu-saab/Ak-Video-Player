@@ -24,7 +24,7 @@ LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002269022170'))
 MONGODB_URI = environ.get("MONGODB_URI", "mongodb+srv://ankushdeb91:WpbkXkwE0rL98h7q@cluster0.cpl3y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
 # Stream Url Means Your Deploy Server App Url, Here You Media Will Be Stream And Ads Will Be Shown.
-STREAM_URL = environ.get("STREAM_URL", "")
+STREAM_URL = environ.get("STREAM_URL", "https://akkabc-26a5621fe5e6.herokuapp.com/")
 
 # This Link Used As Permanent Link That If Your Deploy App Deleted Then You Change Stream Url, So This Link Will Redirect To Stream Url.
 LINK_URL = environ.get("LINK_URL", "https://ak-video-player.blogspot.com/2025/06/jmb.html")
