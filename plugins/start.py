@@ -11,6 +11,35 @@ from urllib.parse import quote_plus, urlencode
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
 
+
+def humanbytes(size):
+    if not size:
+        return "0B"
+    power = 2 ** 10
+    n = 0
+    Dic_powerN = {0: "B", 1: "KB", 2: "MB", 3: "GB", 4: "TB"}
+    while size > power:
+        size /= power
+        n += 1
+    return str(round(size, 2)) + " " + Dic_powerN[n]
+
+async def safe_ask(client, user_id, text, timeout=60):
+    from pyrogram.errors import TimeoutError
+    from pyrogram import filters
+    try:
+        msg = await safe_ask(client, user_id, text, filters=filters.text, timeout=timeout)
+        if msg.text.strip().lower() == "/cancel":
+            await client.send_message(user_id, "❌ Cancelled.")
+            return None
+        return msg
+    except TimeoutError:
+        await client.send_message(user_id, "⏳ Timed out. Start again using /start")
+        return None
+    except Exception as e:
+        await client.send_message(user_id, f"❌ Unexpected error: {e}")
+        return None
+
+
 async def encode(string):
      string_bytes = string.encode("ascii")
      base64_bytes = base64.urlsafe_b64encode(string_bytes)
@@ -70,14 +99,14 @@ Just send your file directly to this bot!
 async def update(client, message):
     vj = True
     if vj:
-        name = await client.ask(message.chat.id, "<b>Now Send Me Your Business Name Which Show On Website\nEx :- <code>Mr Ak</code>\n\n/cancel - cancel the process</b>")
+        name = await safe_ask(client, message.chat.id, "<b>Now Send Me Your Business Name Which Show On Website\nEx :- <code>Mr Ak</code>\n\n/cancel - cancel the process</b>")
         if name.text == "/cancel":
             return await message.reply("**Process Cancelled**")
         if name.text:
             await db.set_name(message.from_user.id, name=name.text)
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /update**")
-        link = await client.ask(message.chat.id, "<b>Now Send Me Your Telegram Channel Link, Channel Link Will Show On Your Website.\n\nSend Like This <code>https://t.me/Movieupdatewithak01</code> ✅\n\nDo not send like this @Movieupdatewithak01 ❌</b>")
+        link = await safe_ask(client, message.chat.id, "<b>Now Send Me Your Telegram Channel Link, Channel Link Will Show On Your Website.\n\nSend Like This <code>https://t.me/Movieupdatewithak01</code> ✅\n\nDo not send like this @Movieupdatewithak01 ❌</b>")
         if link.text and link.text.startswith(('http://', 'https://')):
             await db.set_link(message.from_user.id, link=link.text)
         else:
@@ -102,9 +131,9 @@ async def quality_link(client, message):
     first_id = str(0)
     second_id = str(0)
     third_id = str(0)
-    first = await client.ask(message.from_user.id, "<b>Now Send Me Your Quality In Which You Upload File. Only Below These Qualities Are Available Only.\n\n1. If your file quality is less than or equal to 480p then send <code>480</code>\n2. If your file quality is greater than 480p and less than or equal to 720p then send <code>720</code>\n3. If your file quality is greater than 720p then send <code>1080</code></b>")
+    first = await safe_ask(client, message.from_user.id, "<b>Now Send Me Your Quality In Which You Upload File. Only Below These Qualities Are Available Only.\n\n1. If your file quality is less than or equal to 480p then send <code>480</code>\n2. If your file quality is greater than 480p and less than or equal to 720p then send <code>720</code>\n3. If your file quality is greater than 720p then send <code>1080</code></b>")
     if first.text == "480":
-        f_id = await client.ask(message.from_user.id, "Now Send Me Your 480p Quality File.")
+        f_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 480p Quality File.")
         if f_id.video or f_id.document:
             file = getattr(f_id, f_id.media.value)
             fileid = file.file_id
@@ -113,7 +142,7 @@ async def quality_link(client, message):
         else:
             return await message.reply("Wrong Input, Start Process Again By /quality")
     elif first.text == "720":
-        s_id = await client.ask(message.from_user.id, "Now Send Me Your 720p Quality File.")
+        s_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 720p Quality File.")
         if s_id.video or s_id.document:
             file = getattr(s_id, s_id.media.value)
             fileid = file.file_id
@@ -122,7 +151,7 @@ async def quality_link(client, message):
         else:
             return await message.reply("Wrong Input, Start Process Again By /quality")
     elif first.text == "1080":
-        t_id = await client.ask(message.from_user.id, "Now Send Me Your 1080p Quality File.")
+        t_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 1080p Quality File.")
         if t_id.video or t_id.document:
             file = getattr(t_id, t_id.media.value)
             fileid = file.file_id
@@ -133,9 +162,9 @@ async def quality_link(client, message):
     else:
         return await message.reply("Choose Quality From Above Three Quality Only. Send /quality commamd again to start creating link.")
 
-    second = await client.ask(message.from_user.id, "<b>Now Send Me Your **Another** Quality In Which You Upload File. Only Below These Qualities Are Available Only.\n\n1. If your file quality is less than or equal to 480p then send <code>480</code>\n2. If your file quality is greater than 480p and less than or equal to 720p then send <code>720</code>\n3. If your file quality is greater than 720p then send <code>1080</code>\n\nNote Don not use one quality 2 or more time.</b>")
+    second = await safe_ask(client, message.from_user.id, "<b>Now Send Me Your **Another** Quality In Which You Upload File. Only Below These Qualities Are Available Only.\n\n1. If your file quality is less than or equal to 480p then send <code>480</code>\n2. If your file quality is greater than 480p and less than or equal to 720p then send <code>720</code>\n3. If your file quality is greater than 720p then send <code>1080</code>\n\nNote Don not use one quality 2 or more time.</b>")
     if second.text != first.text and second.text == "480":
-        f_id = await client.ask(message.from_user.id, "Now Send Me Your 480p Quality File.")
+        f_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 480p Quality File.")
         if f_id.video or f_id.document:
             file = getattr(f_id, f_id.media.value)
             fileid = file.file_id
@@ -144,7 +173,7 @@ async def quality_link(client, message):
         else:
             return await message.reply("Wrong Input, Start Process Again By /quality")
     elif second.text != first.text and second.text == "720":
-        s_id = await client.ask(message.from_user.id, "Now Send Me Your 720p Quality File.")
+        s_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 720p Quality File.")
         if s_id.video or s_id.document:
             file = getattr(s_id, s_id.media.value)
             fileid = file.file_id
@@ -153,7 +182,7 @@ async def quality_link(client, message):
         else:
             return await message.reply("Wrong Input, Start Process Again By /quality")
     elif second.text != first.text and second.text == "1080":
-        t_id = await client.ask(message.from_user.id, "Now Send Me Your 1080p Quality File.")
+        t_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 1080p Quality File.")
         if t_id.video or t_id.document:
             file = getattr(t_id, t_id.media.value)
             fileid = file.file_id
@@ -164,9 +193,9 @@ async def quality_link(client, message):
     else:
         return await message.reply("Choose Quality From Above Three Quality Only. Send /quality commamd again to start creating link.")
         
-    third = await client.ask(message.from_user.id, "<b>Now Send Me Your **Another** Quality In Which You Upload File. Only Below These Qualities Are Available Only.\n\n1. If your file quality is less than or equal to 480p then send <code>480</code>\n2. If your file quality is greater than 480p and less than or equal to 720p then send <code>720</code>\n3. If your file quality is greater than 720p then send <code>1080</code>\n\nNote Don not use one quality 2 or more time.\n\nIf you want only 2 quality option then use <code>/getlink</code> command for stream link.</b>")
+    third = await safe_ask(client, message.from_user.id, "<b>Now Send Me Your **Another** Quality In Which You Upload File. Only Below These Qualities Are Available Only.\n\n1. If your file quality is less than or equal to 480p then send <code>480</code>\n2. If your file quality is greater than 480p and less than or equal to 720p then send <code>720</code>\n3. If your file quality is greater than 720p then send <code>1080</code>\n\nNote Don not use one quality 2 or more time.\n\nIf you want only 2 quality option then use <code>/getlink</code> command for stream link.</b>")
     if third.text != second.text and third.text != first.text and third.text == "480":
-        f_id = await client.ask(message.from_user.id, "Now Send Me Your 480p Quality File.")
+        f_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 480p Quality File.")
         if f_id.video or f_id.document:
             file = getattr(f_id, f_id.media.value)
             fileid = file.file_id
@@ -175,7 +204,7 @@ async def quality_link(client, message):
         else:
             return await message.reply("Wrong Input, Start Process Again By /quality")
     elif third.text != second.text and third.text != first.text and third.text == "720":
-        s_id = await client.ask(message.from_user.id, "Now Send Me Your 720p Quality File.")
+        s_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 720p Quality File.")
         if s_id.video or s_id.document:
             file = getattr(s_id, s_id.media.value)
             fileid = file.file_id
@@ -184,7 +213,7 @@ async def quality_link(client, message):
         else:
             return await message.reply("Wrong Input, Start Process Again By /quality")
     elif third.text != second.text and third.text != first.text and third.text == "1080":
-        t_id = await client.ask(message.from_user.id, "Now Send Me Your 1080p Quality File.")
+        t_id = await safe_ask(client, message.from_user.id, "Now Send Me Your 1080p Quality File.")
         if t_id.video or t_id.document:
             file = getattr(t_id, t_id.media.value)
             fileid = file.file_id
@@ -256,13 +285,13 @@ async def show_withdraw(client, message):
     if not link_clicks:
         return await message.reply("**You Are Not Eligible For Withdrawal.\nMinimum Withraw Is 1000 Link Clicks or Video Plays.**")
     if link_clicks >= 1000:
-        confirm = await client.ask(message.from_user.id, "You Are Going To Withdraw All Your Link Clicks. Are You Sure You Want To Withdraw ?\nSend /yes or /no")
+        confirm = await safe_ask(client, message.from_user.id, "You Are Going To Withdraw All Your Link Clicks. Are You Sure You Want To Withdraw ?\nSend /yes or /no")
         if confirm.text == "/no":
             return await message.reply("**Withdraw Cancelled By You ❌**")
         else:
-            pay = await client.ask(message.from_user.id, "Now Choose Your Payment Method, Click On In Which You Want Your Withdrawal.\n\n/upi - for upi, webmoney, airtm, capitalist\n\n/bank - for bank only")
+            pay = await safe_ask(client, message.from_user.id, "Now Choose Your Payment Method, Click On In Which You Want Your Withdrawal.\n\n/upi - for upi, webmoney, airtm, capitalist\n\n/bank - for bank only")
             if pay.text == "/upi":
-                upi = await client.ask(message.from_user.id, "Now Send Me Your Upi Or Upi Number With Your Name, Make Sure Name Matches With Your Upi Account")
+                upi = await safe_ask(client, message.from_user.id, "Now Send Me Your Upi Or Upi Number With Your Name, Make Sure Name Matches With Your Upi Account")
                 if not upi.text:
                     return await message.reply("**Wrong Input ❌**")
                 upi = f"Upi - {pay.text}"
@@ -271,16 +300,16 @@ async def show_withdraw(client, message):
                 except:
                     pass
             else:
-                name = await client.ask(message.from_user.id, "Now Send Me Your Account Holder Full Name")
+                name = await safe_ask(client, message.from_user.id, "Now Send Me Your Account Holder Full Name")
                 if not name.text:
                     return await message.reply("**Wrong Input ❌**")
-                number = await client.ask(message.from_user.id, "Now Send Me Your Account Number")
+                number = await safe_ask(client, message.from_user.id, "Now Send Me Your Account Number")
                 if not int(number.text):
                     return await message.reply("**Wrong Input ❌**")
-                ifsc = await client.ask(message.from_user.id, "Now Send Me Your IFSC Code.")
+                ifsc = await safe_ask(client, message.from_user.id, "Now Send Me Your IFSC Code.")
                 if not ifsc.text:
                     return await message.reply("**Wrong Input ❌**")
-                bank_name = await client.ask(message.from_user.id, "Now Send You Can Send Necessary Thing In One Message, Like Send Bank Name, Or Contact Details.")
+                bank_name = await safe_ask(client, message.from_user.id, "Now Send You Can Send Necessary Thing In One Message, Like Send Bank Name, Or Contact Details.")
                 if not bank_name.text:
                     return await message.reply("**Wrong Input ❌**")
                 upi = f"Account Holder Name - {name.text}\n\nAccount Number - {number.text}\n\nIFSC Code - {ifsc.text}\n\nBank Name - {bank_name.text}\n\n"
@@ -291,7 +320,7 @@ async def show_withdraw(client, message):
                     bank_name.delete()
                 except:
                     pass
-            traffic = await client.ask(message.from_user.id, "Now Send Me Your Traffic Source Link, If Your Link Click Are Fake Then You Will Not Receive Payment And Withdrawal Get Cancelled")
+            traffic = await safe_ask(client, message.from_user.id, "Now Send Me Your Traffic Source Link, If Your Link Click Are Fake Then You Will Not Receive Payment And Withdrawal Get Cancelled")
             if not traffic.text:
                 return await message.reply("**Wrong Traffic Source ❌**")
             balance = link_clicks / 1000.0  # Use floating-point division
@@ -310,18 +339,17 @@ async def show_withdraw(client, message):
 @Client.on_message(filters.private & filters.command("notify") & filters.chat(ADMIN))
 async def show_notify(client, message):
     count = int(1)
-    user_id = await client.ask(message.from_user.id, "Now Send Me Api Key Of User")
+    user_id = await safe_ask(client, message.from_user.id, "Now Send Me Api Key Of User")
     if int(user_id.text):
-        sub = await client.ask(message.from_user.id, "Payment Is Cancelled Or Send Successfully. /send or /cancel")
+        sub = await safe_ask(client, message.from_user.id, "Payment Is Cancelled Or Send Successfully. /send or /cancel")
         if sub.text == "/send":
             record_visits(user_id.text, count)
             record_withdraw(user_id.text, False)
             await client.send_message(user_id.text, "Your Withdrawal Is Successfully Completed And Sended To Your Bank Account.")
         else:
-            reason = await client.ask(message.from_user.id, "Send Me The Reason For Cancellation Of Payment")
+            reason = await safe_ask(client, message.from_user.id, "Send Me The Reason For Cancellation Of Payment")
             if reason.text:
                 record_visits(user_id.text, count)
                 record_withdraw(user_id.text, False)
                 await client.send_message(user_id.text, f"Your Payment Cancelled - {reason.text}")
     await message.reply("Successfully Message Send.")
-    
