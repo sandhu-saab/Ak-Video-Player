@@ -296,7 +296,7 @@ async def show_withdraw(client, message):
                 bank_name = await client.ask(message.from_user.id, "Now Send You Can Send Necessary Thing In One Message, Like Send Bank Name, Or Contact Details.")
                 if not bank_name.text:
                     return await message.reply("**Wrong Input ❌**")
-                upi = f"Account Holder Name - {name.text}/n/nAccount Number - {number.text}/n/nIFSC Code - {ifsc.text}/n/nBank Name - {bank_name.text}\n\n"
+                upi = f"Account Holder Name - {name.text}\n\nAccount Number - {number.text}\n\nIFSC Code - {ifsc.text}\n\nBank Name - {bank_name.text}\n\n"
                 try:
                     name.delete()
                     number.delete()
