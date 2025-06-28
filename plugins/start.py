@@ -32,42 +32,29 @@ async def decode(base64_string):
 async def start(client, message):
     if not await checkdb.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
-        name = await client.ask(message.chat.id, """<b>🎬✨ Welcome to Ak Disk – Your Personal File Hosting Partner! ✨🎬</b>
-🌐 Hosting 🔗 | Sharing 📤 | Earning 💸
-⏳ Let’s get your account ready...
-━━━━━━━━━━━━━━━
-🧾 Step 1: Business Name
-💡 Send the name you want to show on your website.
-➡️ Example:
-Ex :- <code>Mr Ak</code></b>""")
+        name = await client.ask(message.chat.id, """<b>Welcome to Ak Disk – Your Personal File Hosting Partner! ✨🎬.\n\nIts Hosting 🔗 | Sharing 📤 | Earning 💸
+⏳ Let’s get your account ready...\n\n🧾 Step 1: Business Name
+💡 Send the name you want to show on your website\nEx :- <code>Mr Ak</code></b>""")
         if name.text:
             await db.set_name(message.from_user.id, name=name.text)
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /start**")
         link = await client.ask(message.chat.id, """<b>📢 Step 2: Telegram Channel Link
-📌 This link will appear on your site.
-✅ Correct: https://t.me/Movieupdatewithak01
-❌ Wrong: @Movieupdatewithak01</b>""")
+📌 This link will appear on your site.\n\nSend Like This <code>https://t.me/Movieupdatewithak01</code> ✅\n\nDo not send like this @Movieupdatewithak01 ❌</b>""")
         if link.text and link.text.startswith(('http://', 'https://')):
             await db.set_link(message.from_user.id, link=link.text)
         else:
             return await message.reply("**Wrong Input Start Your Process Again By Hitting /start**")
         await checkdb.add_user(message.from_user.id, message.from_user.first_name)
-        return await message.reply("""<b>🎉✨ BOOM! Account Created Successfully! 🎉✨</b>
-🔐 Your files are now just a link away...
-━━━━━━━━━━━━━━━
-📂 Want Quality Options While Uploading?
-Use 🔧 /quality command before sending files.
-📤 No quality needed?
-Just send your file directly to this bot!
-━━━━━━━━━━━━━━━
-🛠️ Useful Commands:
+        return await message.reply("""<b>🎉✨ BOOM! Account Created Successfully! 🎉✨\n\n🔐 Your files are now just a link away...
+━━━━━━━━━━━━━━━.\n\n📂 Want Quality Options While Uploading?
+Use 🔧 /quality command before sending files.\n\n🛠️ Useful Commands:
 🔹 /account – View account details
 🔹 /update – Update your profile
 🔹 /withdraw – Withdraw earnings 💰
-━━━━━━━━━━━━━━━
-🧑‍💻 Need help? This bot is here for you 24×7!
-🚀 Start Sharing Smarter with Ak Disk!</b>""")
+━━━━━━━━━━━━━━━\n\n📤 No quality needed?
+Just send your file directly to this bot!
+━━━━━━━━━━━━━━━.</b>""")
     else:
         rm = InlineKeyboardMarkup([[InlineKeyboardButton("✨ Update Channel", url="https://t.me/Movieupdatewithak01")]])
         await client.send_message(
