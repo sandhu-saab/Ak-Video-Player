@@ -27,7 +27,7 @@ async def safe_ask(client, user_id, text, timeout=60):
     from pyrogram.errors import TimeoutError
     from pyrogram import filters
     try:
-        msg = await safe_ask(client, user_id, text, filters=filters.text, timeout=timeout)
+        msg = await client.ask(user_id, text, filters=filters.text, timeout=timeout)
         if msg.text.strip().lower() == "/cancel":
             await client.send_message(user_id, "❌ Cancelled.")
             return None
