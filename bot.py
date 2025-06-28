@@ -1,4 +1,4 @@
-# Don't Remove Credit @VJ_Botz 
+# Don't Remove Credit @VJ_Botz  
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 
 # Ask Doubt on telegram @KingVJ01
@@ -38,6 +38,12 @@ TechVJBackUpBot.start()
 
 loop = asyncio.get_event_loop()
 
+# 🔒 Optional Watchdog to keep process alive silently
+async def watchdog():
+    while True:
+        await asyncio.sleep(600)  # 10 min
+        logging.info("Watchdog: still alive ✅")
+
 async def start():
     print('\n')
     print('Initalizing Your Bot')
@@ -46,19 +52,24 @@ async def start():
     await initialize_clients()
 
     for name in files:
-        with open(name) as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"plugins/{plugin_name}.py")
-            import_path = "plugins.{}".format(plugin_name)
-            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
-            load = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(load)
-            sys.modules["plugins." + plugin_name] = load
-            print("Tech VJ Imported => " + plugin_name)
+        try:
+            with open(name) as a:
+                patt = Path(a.name)
+                plugin_name = patt.stem.replace(".py", "")
+                plugins_dir = Path(f"plugins/{plugin_name}.py")
+                import_path = "plugins.{}".format(plugin_name)
+                spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
+                load = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(load)
+                sys.modules["plugins." + plugin_name] = load
+                print("Tech VJ Imported => " + plugin_name)
+        except Exception as e:
+            logging.error(f"❌ Plugin load failed: {name} | {e}")
 
     if ON_HEROKU:
         asyncio.create_task(ping_server())  # Heroku keep-alive ping
+
+    asyncio.create_task(watchdog())  # Optional watchdog
 
     me = await TechVJBot.get_me()
     tz = pytz.timezone('Asia/Kolkata')
